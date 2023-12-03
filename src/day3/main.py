@@ -28,14 +28,39 @@ def is_matching_criteria(
     return False
 
 
-def is_matching_criteria_2(
-    prev_line, current_line, next_line, match: re.Match, max_len: int
-) -> bool:
-    return False
+def get_gear_match(prev_line, current_line, next_line, gear: re.Match, max_len: int):
+    gear_matches = []
+    if prev_line:
+        matches = re.finditer(r"(\d+)", prev_line)
+        for match in matches:
+            if match.start() - 1 <= gear.start() <= match.end():
+                gear_matches.append(match.group())
+
+    string_on_left = current_line[: gear.start()]
+    string_on_right = current_line[gear.start() + 1 :]
+    number_left = re.search(r"(\d+)$", string_on_left)
+    number_right = re.search(r"^(\d+)", string_on_right)
+    if number_left:
+        gear_matches.append(number_left.group())
+    if number_right:
+        gear_matches.append(number_right.group())
+
+    if next_line:
+        matches = re.finditer(r"(\d+)", next_line)
+        for match in matches:
+            if match.start() - 1 <= gear.start() <= match.end():
+                gear_matches.append(match.group())
+
+    # print(gear_matches)
+    if len(gear_matches) == 2:
+        return int(gear_matches[0]) * int(gear_matches[1])
+
+    return 0
 
 
 def solve(lines):
     total = 0
+    total_gears = 0
     for prev_line, current_line, next_line in zip_longest(
         [None, *lines], lines, lines[1:]
     ):
@@ -50,12 +75,11 @@ def solve(lines):
                 total += int(number.group(1))
 
         for asterix in re.finditer(r"(\*)", current_line):
-            is_match = is_matching_criteria_2(
+            gear = get_gear_match(
                 prev_line, current_line, next_line, asterix, len(lines[0])
             )
-            if is_match:
-                print(is_match, prev_line, current_line, next_line)
-    return total
+            total_gears += gear
+    return total, total_gears
 
 
 def main():
