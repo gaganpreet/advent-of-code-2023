@@ -48,9 +48,7 @@ fn main() {
         .replace("six", "s6x")
         .replace("seven", "s7n")
         .replace("eight", "e8t")
-        .replace("nine", "n9e")
-        ;
-
+        .replace("nine", "n9e");
 
     for line in contents.lines() {
         let mut first_match = String::new();
@@ -66,7 +64,7 @@ fn main() {
         let first_num = num_string_to_int(first_match.as_str());
         let last_num = num_string_to_int(last_match.as_str());
 
-//        println!("{}, first_num: {}, last_num: {}", line, first_num, last_num);
+        //        println!("{}, first_num: {}, last_num: {}", line, first_num, last_num);
 
         sum +=
             num_string_to_int(first_match.as_str()) * 10 + num_string_to_int(last_match.as_str());
