@@ -4,6 +4,8 @@ Language: Rust
 
 Playing with Rust for the first time and learning as I play along. Subpar code quality is therefore guaranteed.
 
+Note: Some Python solutions included to save time.
+
 ## Running
 
 ```bash
