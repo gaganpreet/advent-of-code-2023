@@ -1,13 +1,14 @@
-use regex::bytes::Regex;
+use regex::Captures;
+use regex::Regex;
 use std::env;
 use std::fs;
 use std::str;
-use std::str::from_utf8;
 
-fn line_meets_criteria(
-    line: &&[u8],
-    prev_line: &[u8],
-    next_line: &[u8],
+/*
+fn is_line_match(
+    line: &str,
+    prev_line: &str,
+    next_line: &str,
     start_index: usize,
     end_index: usize,
     max_index: usize,
@@ -35,6 +36,52 @@ fn line_meets_criteria(
     }
     return false;
 }
+*/
+
+fn is_line_match(
+    line: &str,
+    prev_line: &str,
+    next_line: &str,
+    capture: &Captures,
+    max_index: usize,
+) -> bool {
+    let mut start = capture.get(0).unwrap().start();
+    let mut end = capture.get(0).unwrap().end();
+    let prev_line_bytes = prev_line.as_bytes();
+    let next_line_bytes = next_line.as_bytes();
+    let current_line_bytes = line.as_bytes();
+    if start > 0 {
+        start -= 1;
+    }
+    if end < max_index {
+        end += 1;
+    }
+
+    for i in start..end {
+        if prev_line_bytes[i] != '.' as u8
+            && prev_line_bytes[i] < '0' as u8
+            && prev_line_bytes[i] > '9' as u8
+        {
+            return true;
+        }
+        if next_line_bytes[i] != '.' as u8
+            && next_line_bytes[i] < '0' as u8
+            && next_line_bytes[i] > '9' as u8
+        {
+            return true;
+        }
+
+        if i == start || i == end {
+            if current_line_bytes[i] != '.' as u8
+                && current_line_bytes[i] < '0' as u8
+                && current_line_bytes[i] > '9' as u8
+            {
+                return true;
+            }
+        }
+    }
+    return false;
+}
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -49,47 +96,31 @@ fn main() {
 
     let lines: Vec<&str> = contents.trim().split("\n").collect();
 
-    let bytelines = lines.iter().map(|x| x.as_bytes()).collect::<Vec<_>>();
+    let dummy_string = ".".repeat(lines[0].len());
 
-    let line_len = lines[0].len();
+    let numbers_regex = Regex::new(r"\d+").unwrap();
 
-    // make a string of length with just ignored character '.'
-    let dummy_string = ".".repeat(line_len);
-    let dummy_string_bytes = dummy_string.as_bytes();
-    let mut next_line = bytelines[1];
-    let mut prev_line = dummy_string_bytes;
-    let mut sum = 0;
-
-    let find_numbers_regex = Regex::new(r"(\d+)").unwrap();
-
-    for (i, line) in bytelines.iter().enumerate() {
-        // println!("##{} {}", i, bytelines.len());
-        if (i + 1) == bytelines.len() {
-            next_line = dummy_string_bytes;
+    for i in 0..lines.len() {
+        let line = &lines[i];
+        let mut prev_line = dummy_string.as_str();
+        let mut next_line = dummy_string.as_str();
+        if i == 0 {
+            prev_line = &dummy_string;
         } else {
-            next_line = bytelines[i + 1];
+            prev_line = &lines[i - 1];
+        }
+        if i == lines.len() - 1 {
+            next_line = &dummy_string;
+        } else {
+            next_line = &lines[i + 1];
         }
 
-        for cap in find_numbers_regex.captures_iter(line) {
-            let start = cap.get(1).unwrap().start();
-            let end = cap.get(1).unwrap().end();
-
-            if (line_meets_criteria(line, prev_line, next_line, start, end, line_len)) {
-                let parsed_num_str = cap.get(0).unwrap().as_bytes();
-
-                let num = from_utf8(parsed_num_str).unwrap().parse::<i32>().unwrap();
-                sum += num;
-                println!(">>{:?}", num);
-                //println!("{}", sum);
+        for capture in numbers_regex.captures_iter(line) {
+            let is_match = is_line_match(line, prev_line, next_line, &capture, lines[0].len());
+            println!("{}", is_match);
+            if is_match {
+                println!("{:?}", capture.get(0).unwrap().start());
             }
-            //println!("start: {}, end: {}, line: {:?}", start, end, line);
         }
-        //println!("---");
-
-        //println!("{}\n{}\n{}\n", prev_line, line, next_line);
-        //println!("----");
-
-        prev_line = line;
     }
-    println!("Sum: {}", sum);
 }
