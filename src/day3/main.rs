@@ -4,40 +4,6 @@ use std::env;
 use std::fs;
 use std::str;
 
-/*
-fn is_line_match(
-    line: &str,
-    prev_line: &str,
-    next_line: &str,
-    start_index: usize,
-    end_index: usize,
-    max_index: usize,
-) -> bool {
-    // println!("{:?} {:?} {:?}", line, prev_line, next_line);
-    let mut start = 0;
-    let mut end = 0;
-    if start_index > 0 {
-        start = start_index - 1;
-    } else {
-        start = start_index;
-    }
-    if end_index < max_index {
-        end = end_index + 1;
-    } else {
-        end = end_index;
-    }
-    for i in start..end {
-        if prev_line[i] != '.' as u8 || next_line[i] != '.' as u8 {
-            return true;
-        }
-        if (i == start || i == end) && line[i] != '.' as u8 {
-            return true;
-        }
-    }
-    return false;
-}
-*/
-
 fn is_line_match(
     line: &str,
     prev_line: &str,
