@@ -1,55 +1,76 @@
-use std::fs;
 use regex::Regex;
+use std::env;
+use std::fs;
+
+fn num_string_to_int(num_string: &str) -> i32 {
+    match num_string {
+        "one" => 1,
+        "two" => 2,
+        "three" => 3,
+        "four" => 4,
+        "five" => 5,
+        "six" => 6,
+        "seven" => 7,
+        "eight" => 8,
+        "nine" => 9,
+        "1" => 1,
+        "2" => 2,
+        "3" => 3,
+        "4" => 4,
+        "5" => 5,
+        "6" => 6,
+        "7" => 7,
+        "8" => 8,
+        "9" => 9,
+        &_ => 0,
+    }
+}
 
 fn main() {
-    let contents = fs::read_to_string("input1").expect("Something went wrong reading the file");
+    let args: Vec<String> = env::args().collect();
+
+    let filename = &args[1];
+
+    println!("filename: {}", filename);
+
+    let mut contents = fs::read_to_string(filename).expect("Something went wrong reading the file");
 
     let mut sum = 0;
 
-    // Note: regex is greedy, so it will match as many digits as it can
-    // We are just looking for the first and last digits
-    let regex = Regex::new(r"^.*([0-9]).*").unwrap();
+    let regex = Regex::new(r"([0-9])").unwrap();
+
+    contents = contents
+        .replace("one", "o1e")
+        .replace("two", "t2o")
+        .replace("three", "t3e")
+        .replace("four", "f4r")
+        .replace("five", "f5e")
+        .replace("six", "s6x")
+        .replace("seven", "s7n")
+        .replace("eight", "e8t")
+        .replace("nine", "n9e")
+        ;
+
 
     for line in contents.lines() {
+        let mut first_match = String::new();
+        let mut last_match = String::new();
 
-        let num1 = regex.captures(line).unwrap().get(1).unwrap().as_str().parse::<i32>().unwrap();
-
-        let reversed_line = line.chars().rev().collect::<String>();
-
-        let num2 = regex.captures(&reversed_line).unwrap().get(1).unwrap().as_str().parse::<i32>().unwrap();
-
-//        println!("{} {} {}", line, num1, num2);
-
-        sum += num2 * 10 + num1;
-    }
-
-
-
-
-    /*
-       // old brute force impl
-    for line in contents.lines() {
-        // There are multiple digits in each line amongst letters, we need only the first and the last one to make a two digit number
-        let mut num = 0;
-        for c in line.chars() {
-            if c.is_digit(10) {
-                num = 10 * c.to_digit(10).unwrap();
-                break;
+        for cap in regex.find_iter(line) {
+            if first_match.is_empty() {
+                first_match = cap.as_str().to_string();
             }
+            last_match = cap.as_str().to_string();
         }
 
-        // now iterate in reverse order to get the last digit
-        for c in line.chars().rev() {
-            if c.is_digit(10) {
-                num = num + c.to_digit(10).unwrap();
-                break;
-            }
-        }
+        let first_num = num_string_to_int(first_match.as_str());
+        let last_num = num_string_to_int(last_match.as_str());
 
-        println!("{} {}", line, num);
+//        println!("{}, first_num: {}, last_num: {}", line, first_num, last_num);
 
-        sum += num;
+        sum +=
+            num_string_to_int(first_match.as_str()) * 10 + num_string_to_int(last_match.as_str());
     }
-    */
+
     println!("{}", sum);
 }
