@@ -59,22 +59,19 @@ fn is_line_match(
 
     for i in start..end {
         if prev_line_bytes[i] != '.' as u8
-            && prev_line_bytes[i] < '0' as u8
-            && prev_line_bytes[i] > '9' as u8
+            && (prev_line_bytes[i] < '0' as u8 || prev_line_bytes[i] > '9' as u8)
         {
             return true;
         }
         if next_line_bytes[i] != '.' as u8
-            && next_line_bytes[i] < '0' as u8
-            && next_line_bytes[i] > '9' as u8
+            && (next_line_bytes[i] < '0' as u8 || next_line_bytes[i] > '9' as u8)
         {
             return true;
         }
 
-        if i == start || i == end {
+        if i == start || i == end - 1 {
             if current_line_bytes[i] != '.' as u8
-                && current_line_bytes[i] < '0' as u8
-                && current_line_bytes[i] > '9' as u8
+                && (current_line_bytes[i] < '0' as u8 || current_line_bytes[i] > '9' as u8)
             {
                 return true;
             }
@@ -91,6 +88,7 @@ fn main() {
     }
 
     let file = &args[1];
+    let mut total = 0;
 
     let mut contents = fs::read_to_string(file).unwrap();
 
@@ -117,10 +115,13 @@ fn main() {
 
         for capture in numbers_regex.captures_iter(line) {
             let is_match = is_line_match(line, prev_line, next_line, &capture, lines[0].len());
-            println!("{}", is_match);
             if is_match {
-                println!("{:?}", capture.get(0).unwrap().start());
+                let matched_number = capture.get(0).unwrap().as_str();
+                let parsed_number = str::parse::<i32>(matched_number).unwrap();
+                println!("{} {}", is_match, parsed_number);
+                total += parsed_number;
             }
         }
     }
+    println!("Total: {}", total);
 }
