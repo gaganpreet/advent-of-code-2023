@@ -35,14 +35,12 @@ fn main() {
 
     let mut extra_card_vector: Vec<u32> = Vec::with_capacity(contents.split("\n").count() - 1);
 
-    for i in 0..contents.split("\n").count() - 1 {
+    for _ in 0..contents.split("\n").count() - 1 {
         extra_card_vector.push(0);
     }
 
     for (i, line) in contents.lines().enumerate() {
         let captures = regex.captures(line).unwrap();
-        let game = captures.get(1).unwrap().as_str();
-        let mut extra_points = 0;
         let winning_numbers_str = captures.get(2).unwrap().as_str();
         let have_numbers_str = captures.get(3).unwrap().as_str();
 
