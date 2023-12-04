@@ -17,6 +17,7 @@ fn is_line_match(
     capture: &Captures,
     max_index: usize,
 ) -> bool {
+    // Part 1
     let mut start = capture.get(0).unwrap().start();
     let mut end = capture.get(0).unwrap().end();
     let prev_line_bytes = prev_line.as_bytes();
@@ -39,6 +40,8 @@ fn is_line_match(
         }
 
         if i == start || i == end - 1 {
+            // For the current line, we exclude the match itself (i.e. the number)
+            // and only peek left or right of it
             if is_special_symbol(current_line_bytes[i]) {
                 return true;
             }
@@ -57,25 +60,26 @@ fn main() {
     let file = &args[1];
     let mut total = 0;
 
-    let mut contents = fs::read_to_string(file).unwrap();
+    let contents = fs::read_to_string(file).unwrap();
 
     let lines: Vec<&str> = contents.trim().split("\n").collect();
 
     let dummy_string = ".".repeat(lines[0].len());
+    let dummy_string_str = dummy_string.as_str();
 
     let numbers_regex = Regex::new(r"\d+").unwrap();
 
     for i in 0..lines.len() {
         let line = &lines[i];
-        let mut prev_line = dummy_string.as_str();
-        let mut next_line = dummy_string.as_str();
+        let prev_line: &&str;
+        let next_line: &&str;
         if i == 0 {
-            prev_line = &dummy_string;
+            prev_line = &dummy_string_str;
         } else {
             prev_line = &lines[i - 1];
         }
         if i == lines.len() - 1 {
-            next_line = &dummy_string;
+            next_line = &dummy_string_str;
         } else {
             next_line = &lines[i + 1];
         }
@@ -85,7 +89,7 @@ fn main() {
             if is_match {
                 let matched_number = capture.get(0).unwrap().as_str();
                 let parsed_number = str::parse::<i32>(matched_number).unwrap();
-                println!("{} {}", is_match, parsed_number);
+                // println!("{} {}", is_match, parsed_number);
                 total += parsed_number;
             }
         }
