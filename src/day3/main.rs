@@ -4,6 +4,12 @@ use std::env;
 use std::fs;
 use std::str;
 
+fn is_special_symbol(c: u8) -> bool {
+    // Should match the problem statement
+    // i.e. not a period and not a number
+    return c != '.' as u8 && (c < '0' as u8 || c > '9' as u8);
+}
+
 fn is_line_match(
     line: &str,
     prev_line: &str,
@@ -24,21 +30,16 @@ fn is_line_match(
     }
 
     for i in start..end {
-        if prev_line_bytes[i] != '.' as u8
-            && (prev_line_bytes[i] < '0' as u8 || prev_line_bytes[i] > '9' as u8)
-        {
+        if is_special_symbol(prev_line_bytes[i]) {
             return true;
         }
-        if next_line_bytes[i] != '.' as u8
-            && (next_line_bytes[i] < '0' as u8 || next_line_bytes[i] > '9' as u8)
-        {
+
+        if is_special_symbol(next_line_bytes[i]) {
             return true;
         }
 
         if i == start || i == end - 1 {
-            if current_line_bytes[i] != '.' as u8
-                && (current_line_bytes[i] < '0' as u8 || current_line_bytes[i] > '9' as u8)
-            {
+            if is_special_symbol(current_line_bytes[i]) {
                 return true;
             }
         }
